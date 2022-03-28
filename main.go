@@ -24,7 +24,8 @@ var FS embed.FS
 
 func main() {
 	var port = "27149" // 端口
-	go func() {        // gin协程
+	// 启动 gin服务
+	go func() { // gin协程
 		gin.SetMode(gin.DebugMode) //设置模式 ReleaseMode生产模式,DebugMode开发模式
 		router := gin.Default()
 
@@ -62,7 +63,7 @@ func main() {
 		})
 		router.Run(":" + port)
 	}()
-
+	// 启动 chrome
 	// 找到chrome路径
 	chromePath := "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 	// 创建命令
@@ -74,7 +75,7 @@ func main() {
 	//   os.Signal操作系统信号, 1 是缓存
 	chSignal := make(chan os.Signal, 1)
 	signal.Notify(chSignal, os.Interrupt)
-
+	// 等待中断信号
 	select {
 	case <-chSignal:
 		cmd.Process.Kill()
@@ -248,7 +249,7 @@ func QrcodesController(c *gin.Context) {
 	}
 }
 
-//
+// 上传文件
 /*
 POST /api/v1/files
 跟POST /abi/v1/texts类似
