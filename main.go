@@ -35,6 +35,7 @@ func main() {
 
 		router.POST("/api/v1/texts", TextsController)
 		router.GET("/api/v1/addresses", AddressesController)
+		router.GET("/uploads/:path", UploadsController)
 
 		// 没有路由时,走这最后一个路由
 		router.NoRoute(func(c *gin.Context) {
@@ -184,4 +185,44 @@ func AddressesController(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{"addresses": result})
+}
+
+//
+/* 文件下载
+GET/uploads/:path
+思路:
+	1,将网络路径:path变成本地绝对路径
+	2,读取本地文件,写到HTTP响应里
+*/
+func UploadsController(c *gin.Context) {
+	if path := c.Param("path"); path != "" {
+		target := filepath.Join(GetUploadsDir(), path)
+		c.Header("Content-Description", "File Transfer")
+		c.Header("Content-Transfer-Encoding", "binary")
+		c.Header("Content-Disposition", "attachment; filename="+path)
+		c.Header("Content-Type", "application/octet-stream")
+		c.File(target) // 给前端发送一个文件
+	} else {
+		c.Status(http.StatusNotFound)
+	}
+}
+
+func GetUploadsDir() (uploads string) {
+	exe, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// filepath.Dir()函数用于返回指定路径中除最后一个元素以外的所有元素
+	/*
+		Dir返回路径除去最后一个路径元素的部分，即该路径最后一个元素所在的目录。在使用Split去掉最后一个元素后，会简化路径并去掉末尾的斜杠。如果路径是空字符串，会返回"."；
+		如果路径由1到多个斜杠后跟0到多个非斜杠字符组成，会返回"/"；其他任何情况下都不会返回以斜杠结尾的路径。
+		Join函数可以将任意数量的路径元素放入一个单一路径里，会根据需要添加斜杠。
+		结果是经过简化的，所有的空字符串元素会被忽略。
+	*/
+	dir := filepath.Dir(exe)
+	if err != nil {
+		log.Fatal(err)
+	}
+	uploads = filepath.Join(dir, "uploads")
+	return
 }
