@@ -23,7 +23,8 @@ import (
 var FS embed.FS
 
 func main() {
-	go func() { // gin协程
+	var port = "27149" // 端口
+	go func() {        // gin协程
 		gin.SetMode(gin.DebugMode) //设置模式 ReleaseMode生产模式,DebugMode开发模式
 		router := gin.Default()
 
@@ -38,6 +39,7 @@ func main() {
 		router.GET("/api/v1/addresses", AddressesController)
 		router.GET("/uploads/:path", UploadsController)
 		router.GET("/api/v1/qrcodes", QrcodesController)
+		router.POST("/api/v1/files", FilesController)
 
 		// 没有路由时,走这最后一个路由
 		router.NoRoute(func(c *gin.Context) {
@@ -58,13 +60,13 @@ func main() {
 				c.Status(http.StatusNotFound)
 			}
 		})
-		router.Run(":8080")
+		router.Run(":" + port)
 	}()
 
 	// 找到chrome路径
 	chromePath := "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 	// 创建命令
-	cmd := exec.Command(chromePath, "--app=http://127.0.0.1:8080/static/index.html")
+	cmd := exec.Command(chromePath, "--app=http://127.0.0.1:"+port+"/static/index.html")
 	// 启动 一个进程,启动进程比启动一个go协程慢得多
 	cmd.Start()
 
@@ -222,7 +224,7 @@ func GetUploadsDir() (uploads string) {
 	return
 }
 
-//
+// 添加二维码接口
 /*
 GET /api/v1/qrcodes
 思路:
@@ -244,4 +246,42 @@ func QrcodesController(c *gin.Context) {
 	} else {
 		c.Status(http.StatusBadRequest)
 	}
+}
+
+//
+/*
+POST /api/v1/files
+跟POST /abi/v1/texts类似
+区别在于保存文件而不是保存文本
+思路:
+1. 获取go执行文件所在目录
+2. 在该目录创建uploads目录
+3. 将文件保存为另一个文件看起来(多此一举)
+4. 返回后者的下载路径
+*/
+func FilesController(c *gin.Context) {
+	file, err := c.FormFile("raw")
+	if err != nil {
+		log.Fatal(err)
+	}
+	exe, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	dir := filepath.Dir(exe)
+	if err != nil {
+		log.Fatal(err)
+	}
+	filename := uuid.New().String()
+	uploads := filepath.Join(dir, "uploads")
+	err = os.MkdirAll(uploads, os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fullpath := path.Join("uploads", filename+filepath.Ext(file.Filename))
+	fileErr := c.SaveUploadedFile(file, filepath.Join(dir, fullpath))
+	if fileErr != nil {
+		log.Fatal(fileErr)
+	}
+	c.JSON(http.StatusOK, gin.H{"url": "/" + fullpath})
 }
