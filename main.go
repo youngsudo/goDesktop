@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -28,10 +29,13 @@ func main() {
 		// router.GET("/", func(c *gin.Context) {
 		// 	c.Writer.Write([]byte("abcd"))
 		// })
-		staticFiles, _ := fs.Sub(FS, "frontend/dist")
-		router.POST("/api/v1/texts", TextsController)
 		// 静态文件路由
+		staticFiles, _ := fs.Sub(FS, "frontend/dist")
 		router.StaticFS("/static", http.FS(staticFiles))
+
+		router.POST("/api/v1/texts", TextsController)
+		router.GET("/api/v1/addresses", AddressesController)
+
 		// 没有路由时,走这最后一个路由
 		router.NoRoute(func(c *gin.Context) {
 			path := c.Request.URL.Path               // 获取用户访问路径
@@ -72,6 +76,7 @@ func main() {
 	}
 }
 
+//  实现接口1: 上传文件
 /*
 	思路:
 	1,获取go执行文件(.exe文件)所在目录
@@ -156,4 +161,27 @@ func TextsController(c *gin.Context) {
 			os.Rename("./2.txt", "./2_new.txt")
 	*/
 
+}
+
+// 实现接口2: 获取局域网IP
+
+/*
+思路:
+	1,获取电脑在各个局域网的IP地址
+	2,转为JSON写入HTTP响应
+*/
+func AddressesController(c *gin.Context) {
+	// InterfaceAddrs获取本地IP
+	addrs, _ := net.InterfaceAddrs()
+	var result []string
+	for _, address := range addrs {
+		// 检查ip地址判断是否回环地址
+		// address.类型断言,断言net是一个地址ip 是一个(*net.IPNet)类型
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				result = append(result, ipnet.IP.String())
+			}
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{"addresses": result})
 }
