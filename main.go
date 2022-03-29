@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gogui/cfg"
 	"gogui/server"
 	"os"
 	"os/exec"
@@ -23,7 +24,7 @@ func startBrowser() *exec.Cmd {
 	// 找到chrome路径
 	chromePath := "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 	// 创建命令
-	cmd := exec.Command(chromePath, "--app=http://127.0.0.1:27149/static/index.html")
+	cmd := exec.Command(chromePath, "--app=http://127.0.0.1:"+cfg.GetPort()+"/static/index.html")
 	// 启动 一个进程,启动进程比启动一个go协程慢得多
 	cmd.Start()
 	return cmd
