@@ -23,8 +23,10 @@ func init() {
 }
 
 func Run() {
-	gin.SetMode(gin.DebugMode) //设置模式 ReleaseMode生产模式,DebugMode开发模式
+	gin.SetMode(gin.ReleaseMode) //设置模式 ReleaseMode生产模式,DebugMode开发模式
 	router := gin.Default()
+	gin.DisableConsoleColor()
+	router.SetTrustedProxies([]string{cfg.GetPort()})
 
 	// 静态文件路由
 	staticFiles, _ := fs.Sub(FS, "frontend/dist")
@@ -58,5 +60,8 @@ func Run() {
 			c.Status(http.StatusNotFound)
 		}
 	})
-	router.Run(":" + cfg.GetPort())
+	runErr := router.Run(":" + cfg.GetPort())
+	if runErr != nil {
+		log.Fatal(runErr)
+	}
 }

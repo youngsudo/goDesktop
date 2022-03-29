@@ -16,17 +16,22 @@ var wsupgrader = websocket.Upgrader{
 	},
 }
 
+// serveWs handles websocket requests from the peer.
+// 处理websocket请求
 func wshandler(hub *Hub, w http.ResponseWriter, r *http.Request) {
-	conn, err := wsupgrader.Upgrade(w, r, nil)
+	// 首先升级websocket协议
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	// 没有升级失败则初始化一个client信息,表示有一个客户正在连接
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	// 注册用户
 	client.hub.register <- client
 
-	// Allow collection of memory referenced by the caller by doing all work in
-	// new goroutines.
+	// 允许通过在中执行所有工作来收集调用者引用的内存
+	// 新的goroutines。
 	go client.writePump()
 	go client.readPump()
 }
