@@ -74,7 +74,7 @@ const UploadSuccessDialog = ({ content, onClose }) => {
       {addressesRef.current ?
         <div>
           <P>
-            请 Windows 用户在防火墙入站规则中开通 27149 端口（<a href="https://jingyan.baidu.com/article/09ea3ede7311dec0afde3977.html" target="_blank" rel="noreferrer">教程</a>）
+            请 Windows 用户在防火墙入站规则中开通 27149 端口（<a href="https://blog.csdn.net/nihaize0520/article/details/80714108" target="_blank" rel="noreferrer">教程</a>）
           </P>
           <P>
             <Label>
