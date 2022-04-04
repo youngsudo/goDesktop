@@ -27,14 +27,7 @@ func FilesController(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	exe, err := os.Executable()
-	if err != nil {
-		log.Fatal(err)
-	}
-	dir := filepath.Dir(exe)
-	if err != nil {
-		log.Fatal(err)
-	}
+	dir := Dir()
 	filename := uuid.New().String()
 	uploads := filepath.Join(dir, "uploads")
 	err = os.MkdirAll(uploads, os.ModePerm)

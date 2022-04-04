@@ -2,19 +2,17 @@ package server
 
 import (
 	"embed"
-	"gogui/cfg"
-	c "gogui/controllers"
-	"gogui/server/ws"
 	"io/fs"
+	c "local/controllers"
+	"local/server/ws"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-//go:embed frontend/dist/*
-var FS embed.FS
 var hub *ws.Hub
 
 func init() {
@@ -22,11 +20,11 @@ func init() {
 	go hub.Run()
 }
 
-func Run() {
+func Run(port int, FS embed.FS, chBackendStarted chan struct{}) {
 	gin.SetMode(gin.ReleaseMode) //设置模式 ReleaseMode生产模式,DebugMode开发模式
 	router := gin.Default()
 	gin.DisableConsoleColor()
-	router.SetTrustedProxies([]string{cfg.GetPort()})
+	router.SetTrustedProxies([]string{strconv.Itoa(port)})
 
 	// 静态文件路由
 	staticFiles, _ := fs.Sub(FS, "frontend/dist")
@@ -60,7 +58,10 @@ func Run() {
 			c.Status(http.StatusNotFound)
 		}
 	})
-	runErr := router.Run(":" + cfg.GetPort())
+	go func() {
+		chBackendStarted <- struct{}{}
+	}()
+	runErr := router.Run(":" + strconv.Itoa(port))
 	if runErr != nil {
 		log.Fatal(runErr)
 	}

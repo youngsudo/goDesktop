@@ -1,6 +1,7 @@
 dist
 node_modules
 uploads
+vendor
 # Binaries for programs and plugins
 *.exe
 *.exe~

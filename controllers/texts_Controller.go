@@ -30,21 +30,7 @@ func TextsController(c *gin.Context) {
 		// os.Getwd会输出实际的工作目录
 		// os.Executable会输出一个临时文件的路径，毕竟os.Executable就是要返回当前运行的程序路径，
 		// 所以会返回一个go run生成的临时文件路径
-		exe, err := os.Executable()
-		if err != nil {
-			log.Fatal(err)
-		}
-		// filepath.Dir()函数用于返回指定路径中除最后一个元素以外的所有元素
-		/*
-			Dir返回路径除去最后一个路径元素的部分，即该路径最后一个元素所在的目录。在使用Split去掉最后一个元素后，会简化路径并去掉末尾的斜杠。如果路径是空字符串，会返回"."；
-			如果路径由1到多个斜杠后跟0到多个非斜杠字符组成，会返回"/"；其他任何情况下都不会返回以斜杠结尾的路径。
-			Join函数可以将任意数量的路径元素放入一个单一路径里，会根据需要添加斜杠。
-			结果是经过简化的，所有的空字符串元素会被忽略。
-		*/
-		dir := filepath.Dir(exe)
-		if err != nil {
-			log.Fatal(err)
-		}
+		dir := Dir()
 		// uuid是谷歌开发的生成16字节UUID的模块
 		filename := uuid.New().String()
 		uploads := filepath.Join(dir, "uploads")
@@ -56,20 +42,25 @@ func TextsController(c *gin.Context) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fullpath := path.Join("uploads", filename+".txt")
-		err = ioutil.WriteFile(filepath.Join(dir, fullpath), []byte(json.Raw), 0644)
-		if err != nil {
-			log.Fatal(err)
+		if json.Raw != "" {
+			fullpath := path.Join("uploads", filename+".txt")
+			err = ioutil.WriteFile(filepath.Join(dir, fullpath), []byte(json.Raw), 0644)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			/*
+				exe:  "c:\\Users\\young\\Desktop\\lorcademo\\demo3\\__debug_bin.exe"
+				dir: "c:\\Users\\young\\Desktop\\lorcademo\\demo3"
+				filename: "79a89ddf-5025-4c75-9716-6405e01b37c2"
+				uploads: "c:\\Users\\young\\Desktop\\lorcademo\\demo3\\uploads"
+				fullpath: "uploads/79a89ddf-5025-4c75-9716-6405e01b37c2.txt"
+			*/
+			c.JSON(http.StatusOK, gin.H{"url": "/" + fullpath})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"error": "no text"})
 		}
 
-		/*
-			exe:  "c:\\Users\\young\\Desktop\\lorcademo\\demo3\\__debug_bin.exe"
-			dir: "c:\\Users\\young\\Desktop\\lorcademo\\demo3"
-			filename: "79a89ddf-5025-4c75-9716-6405e01b37c2"
-			uploads: "c:\\Users\\young\\Desktop\\lorcademo\\demo3\\uploads"
-			fullpath: "uploads/79a89ddf-5025-4c75-9716-6405e01b37c2.txt"
-		*/
-		c.JSON(http.StatusOK, gin.H{"url": "/" + fullpath})
 	}
 
 	/*
@@ -97,4 +88,22 @@ func TextsController(c *gin.Context) {
 			os.Rename("./2.txt", "./2_new.txt")
 	*/
 
+}
+func Dir() string {
+	exe, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// filepath.Dir()函数用于返回指定路径中除最后一个元素以外的所有元素
+	/*
+		Dir返回路径除去最后一个路径元素的部分，即该路径最后一个元素所在的目录。在使用Split去掉最后一个元素后，会简化路径并去掉末尾的斜杠。如果路径是空字符串，会返回"."；
+		如果路径由1到多个斜杠后跟0到多个非斜杠字符组成，会返回"/"；其他任何情况下都不会返回以斜杠结尾的路径。
+		Join函数可以将任意数量的路径元素放入一个单一路径里，会根据需要添加斜杠。
+		结果是经过简化的，所有的空字符串元素会被忽略。
+	*/
+	dir := filepath.Dir(exe)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return dir
 }

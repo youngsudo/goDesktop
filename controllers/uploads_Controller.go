@@ -22,14 +22,14 @@ func GetUploadsDir() (uploads string) {
 	return
 }
 
-//
-/* 文件下载
+/*
 GET/uploads/:path
 思路:
 	1,将网络路径:path变成本地绝对路径
 	2,读取本地文件,写到HTTP响应里
 */
-func UploadsController(c *gin.Context) {
+
+func UploadsController(c *gin.Context) { //  上传文件
 	if path := c.Param("path"); path != "" {
 		target := filepath.Join(GetUploadsDir(), path)
 		c.Header("Content-Description", "File Transfer")
