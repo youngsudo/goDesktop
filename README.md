@@ -12,9 +12,9 @@ go build -ldflags -H=windowsgui -o "local.exe"
 
 
 
-<img src="github.com/young-sudo/goDesktop\frontend\src\images\synk.png" alt="同步传" style="zoom: 50%;" />
+<img src="\frontend\src\images\synk.png" alt="同步传" style="zoom: 50%;" />
 
-![img](github.com/young-sudo/goDesktopgoDesktop\frontend\local.png)
+![img](\frontend\local.png)
 
 `local_test.exe`可以直接在windows上运行
 
