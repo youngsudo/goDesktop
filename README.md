@@ -4,17 +4,15 @@
 
 必须要有谷歌浏览器
 
-编译
+编译   go build -ldflags -H=windowsgui -o "local.exe"
 
-``` go
-go build -ldflags -H=windowsgui -o "local.exe"
-```
+` go run . `会有问题,因为会找不到  ` config.ini ` 文件
 
 
 
-<img src="\frontend\src\images\synk.png" alt="同步传" style="zoom: 50%;" />
+<img src=".\frontend\src\images\synk.png" alt="同步传" style="zoom: 50%;" />
 
-![img](\frontend\local.png)
+![img](.\frontend\local.png)
 
 `local_test.exe`可以直接在windows上运行
 
