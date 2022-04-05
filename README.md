@@ -10,9 +10,9 @@
 
 
 
-<img src="https://github.com/young-sudo/goDesktop/blob/main/frontend/src/images/synk.png" alt="同步传" style="zoom: 50%;" />
+![img](https://github.com/young-sudo/goDesktop/blob/main/frontend/src/images/synk.png alt="同步传" style="zoom: 50%;" />
 
-![img](src="https://github.com/young-sudo/goDesktop/blob/main/.%5Cfrontend%5Clocal.png" /)
+![img](https://github.com/young-sudo/goDesktop/blob/main/.%5Cfrontend%5Clocal.png /)
 
 `local_test.exe`可以直接在windows上运行
 
